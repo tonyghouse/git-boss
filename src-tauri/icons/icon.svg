@@ -1,0 +1,81 @@
+<svg width="1024" height="1024" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="background" x1="78" y1="42" x2="434" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111F" />
+      <stop offset="0.5" stop-color="#123A7A" />
+      <stop offset="1" stop-color="#2563EB" />
+    </linearGradient>
+    <linearGradient id="gold" x1="190" y1="104" x2="322" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8C7" />
+      <stop offset="0.36" stop-color="#FCD34D" />
+      <stop offset="0.72" stop-color="#F59E0B" />
+      <stop offset="1" stop-color="#B45309" />
+    </linearGradient>
+    <radialGradient id="crownShine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(238 126) rotate(33) scale(91 48)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.72" />
+      <stop offset="0.46" stop-color="#FFF7CC" stop-opacity="0.26" />
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="crownBase" x1="210" y1="164" x2="302" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE98A" />
+      <stop offset="0.56" stop-color="#FBBF24" />
+      <stop offset="1" stop-color="#D97706" />
+    </linearGradient>
+    <radialGradient id="sparkleShine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(169 132) rotate(45) scale(14)">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="0.42" stop-color="#FFF4B8" />
+      <stop offset="1" stop-color="#F59E0B" />
+    </radialGradient>
+    <linearGradient id="letterLight" x1="104" y1="202" x2="408" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" />
+      <stop offset="0.55" stop-color="#F8FAFC" />
+      <stop offset="1" stop-color="#DDEAFE" />
+    </linearGradient>
+    <filter id="markShadow" x="42" y="160" width="428" height="230" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="16" flood-color="#020617" flood-opacity="0.34" />
+    </filter>
+    <filter id="goldGlow" x="160" y="86" width="192" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="#FACC15" flood-opacity="0.48" />
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#92400E" flood-opacity="0.2" />
+    </filter>
+    <filter id="sparkleGlow" x="156" y="98" width="200" height="54" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#FFFFFF" flood-opacity="0.82" />
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#FACC15" flood-opacity="0.28" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#background)" />
+  <path d="M88 78C132 40 211 31 292 47C371 63 428 104 447 164C463 215 447 270 406 327C360 390 293 433 218 439C143 445 83 411 58 356C28 292 33 126 88 78Z" fill="#FFFFFF" fill-opacity="0.07" />
+  <path d="M84 431C140 451 217 457 291 435C363 414 420 366 443 304C451 408 401 512 270 512H112C50 512 0 462 0 400V311C16 364 45 407 84 431Z" fill="#020617" fill-opacity="0.16" />
+
+  <g filter="url(#markShadow)">
+    <text x="256" y="336" text-anchor="middle" fill="url(#letterLight)" font-family="Arial, Helvetica, sans-serif" font-size="168" font-weight="900" letter-spacing="0">GIT</text>
+  </g>
+
+  <g filter="url(#goldGlow)">
+    <path d="M202 169C217 165 224 151 224 132C233 146 242 156 251 162C253 148 254 133 256 119C258 133 259 148 261 162C270 156 279 146 288 132C288 151 295 165 310 169L300 192H212L202 169Z" fill="url(#gold)" stroke="#FFF2A8" stroke-width="4" stroke-linejoin="round" />
+    <path d="M221 168C237 160 249 145 256 127C263 145 275 160 291 168H221Z" fill="url(#crownShine)" opacity="0.68" />
+    <path d="M213 171H299L296 194H216L213 171Z" fill="url(#crownBase)" />
+    <path d="M222 185H290" stroke="#FFF3B0" stroke-width="4" stroke-linecap="round" opacity="0.62" />
+  </g>
+
+  <g filter="url(#sparkleGlow)">
+    <g stroke-linecap="round">
+      <path d="M169 128.5V139.5M163.5 134H174.5" stroke="#FFF8C7" stroke-width="1.8" />
+      <circle cx="169" cy="134" r="2.2" fill="#FFFFFF" />
+      <path d="M343 134V142M339 138H347" stroke="#FFD978" stroke-width="1.5" />
+      <circle cx="343" cy="138" r="1.7" fill="#FFF7C2" />
+      <path d="M309 115V121M306 118H312" stroke="#FFFFFF" stroke-width="1.25" opacity="0.76" />
+      <path d="M203 121V126M200.5 123.5H205.5" stroke="#FFF8C7" stroke-width="1.1" opacity="0.62" />
+    </g>
+    <g fill="#FFFFFF">
+      <circle cx="324" cy="111" r="1.8" opacity="0.9" />
+      <circle cx="188" cy="112" r="1.25" opacity="0.72" />
+      <circle cx="357" cy="122" r="1.1" opacity="0.64" />
+      <circle cx="156" cy="121" r="0.95" opacity="0.58" />
+      <circle cx="336" cy="103" r="1.05" opacity="0.66" />
+      <circle cx="368" cy="135" r="0.85" opacity="0.52" />
+      <circle cx="181" cy="148" r="0.8" opacity="0.48" />
+    </g>
+  </g>
+</svg>
