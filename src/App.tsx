@@ -1229,7 +1229,7 @@ function BranchDiffWorkspace({
                 failure={branchDiffState.failure}
               />
             ) : result?.content.trim() ? (
-              <DiffViewer content={result.content} mode={mode} />
+              <DiffViewer content={result.content} mode={mode} showFileHeaders />
             ) : result ? (
               <EmptyDiffState title="No diff output" />
             ) : (
@@ -1787,7 +1787,7 @@ function DiffPanel({
             </div>
           </div>
         ) : diffState.content.trim() ? (
-          <DiffViewer content={diffState.content} mode={mode} />
+          <DiffViewer content={diffState.content} mode={mode} showFileHeaders={false} />
         ) : (
           <EmptyDiffState title="No diff output" />
         )}
@@ -1835,123 +1835,336 @@ function DiffModeButton({
 function DiffViewer({
   content,
   mode,
+  showFileHeaders,
 }: {
   content: string;
   mode: DiffMode;
+  showFileHeaders: boolean;
 }) {
+  const files = useMemo(() => parseDiff(content), [content]);
+
   if (mode === "split") {
-    return <SplitDiffViewer content={content} />;
+    return <SplitDiffViewer files={files} showFileHeaders={showFileHeaders} />;
   }
 
-  const lines = content.replace(/\n$/, "").split("\n");
+  return <InlineDiffViewer files={files} showFileHeaders={showFileHeaders} />;
+}
+
+type DiffLineKind = "context" | "add" | "delete";
+
+type DiffContentRow =
+  | {
+      type: "hunk";
+      text: string;
+      oldStart: number;
+      newStart: number;
+    }
+  | {
+      type: "line";
+      kind: DiffLineKind;
+      oldNumber: number | null;
+      newNumber: number | null;
+      text: string;
+    }
+  | {
+      type: "note";
+      text: string;
+    };
+
+type ParsedDiffFile = {
+  key: string;
+  oldPath: string | null;
+  newPath: string | null;
+  notes: string[];
+  rows: DiffContentRow[];
+};
+
+function InlineDiffViewer({
+  files,
+  showFileHeaders,
+}: {
+  files: ParsedDiffFile[];
+  showFileHeaders: boolean;
+}) {
+  const shouldShowFileHeaders = showFileHeaders || files.length > 1;
 
   return (
-    <div className="h-full min-h-0 overflow-auto">
-      <div className="min-w-full py-3 font-mono text-xs leading-5">
-        {lines.map((line, index) => (
-          <div
-            key={`${index}:${line}`}
-            className={cn(
-              "grid min-w-max grid-cols-[3.25rem_1fr] pr-4",
-              diffLineClassName(line),
-            )}
+    <div className="h-full min-h-0 overflow-auto bg-white dark:bg-slate-950">
+      <div className="min-w-full pb-3 font-mono text-xs leading-5">
+        {files.map((file, fileIndex) => (
+          <section
+            key={file.key}
+            className={cn(fileIndex > 0 && "border-t border-slate-200 dark:border-white/10")}
           >
-            <span className="select-none border-r border-slate-200 pr-3 text-right text-slate-400 dark:border-white/10 dark:text-slate-500">
-              {index + 1}
-            </span>
-            <code className="pl-3">{line || " "}</code>
-          </div>
+            {shouldShowFileHeaders ? <DiffFileHeader file={file} /> : null}
+            {file.notes.length > 0 ? <DiffFileNotes notes={file.notes} /> : null}
+            <div className="min-w-max">
+              {file.rows.map((row, rowIndex) => (
+                <InlineDiffRow key={`${file.key}:${rowIndex}`} row={row} />
+              ))}
+            </div>
+          </section>
         ))}
       </div>
     </div>
   );
 }
 
-type SplitDiffRow = {
-  left: string;
-  right: string;
-  kind: "context" | "add" | "delete" | "change" | "meta";
+type SplitDiffCell = {
+  lineNumber: number | null;
+  marker: string;
+  text: string;
 };
 
-function SplitDiffViewer({ content }: { content: string }) {
-  const rows = splitDiffRows(content);
+type SplitDiffLineKind = DiffLineKind | "change";
+
+type SplitDiffRow =
+  | {
+      type: "hunk";
+      text: string;
+    }
+  | {
+      type: "line";
+      kind: SplitDiffLineKind;
+      left: SplitDiffCell | null;
+      right: SplitDiffCell | null;
+    }
+  | {
+      type: "note";
+      text: string;
+    };
+
+function SplitDiffViewer({
+  files,
+  showFileHeaders,
+}: {
+  files: ParsedDiffFile[];
+  showFileHeaders: boolean;
+}) {
+  const shouldShowFileHeaders = showFileHeaders || files.length > 1;
 
   return (
-    <div className="h-full min-h-0 overflow-auto">
+    <div className="h-full min-h-0 overflow-auto bg-white dark:bg-slate-950">
       <div className="grid min-w-[920px] grid-cols-2 border-b border-slate-200 bg-slate-100 font-mono text-[11px] font-semibold uppercase text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
         <div className="border-r border-slate-200 px-4 py-2 dark:border-white/10">Before</div>
         <div className="px-4 py-2">After</div>
       </div>
       <div className="min-w-[920px] pb-3 font-mono text-xs leading-5">
-        {rows.map((row, index) =>
-          row.kind === "meta" ? (
-            <div
-              key={`${index}:${row.left}:${row.right}`}
-              className="border-b border-slate-200 bg-slate-100 px-4 py-0.5 text-slate-700 dark:border-white/5 dark:bg-slate-900/90 dark:text-slate-300"
-            >
-              <code>{row.left || row.right || " "}</code>
-            </div>
-          ) : (
-            <div
-              key={`${index}:${row.left}:${row.right}`}
-              className="grid grid-cols-2 border-b border-slate-100 dark:border-white/[0.03]"
-            >
-              <code
-                className={cn(
-                  "min-h-5 border-r border-slate-200 px-4 dark:border-white/10",
-                  splitDiffCellClassName(row.kind, "left"),
-                )}
-              >
-                {row.left || " "}
-              </code>
-              <code
-                className={cn(
-                  "min-h-5 px-4",
-                  splitDiffCellClassName(row.kind, "right"),
-                )}
-              >
-                {row.right || " "}
-              </code>
-            </div>
-          ),
-        )}
+        {files.map((file, fileIndex) => (
+          <section
+            key={file.key}
+            className={cn(fileIndex > 0 && "border-t border-slate-200 dark:border-white/10")}
+          >
+            {shouldShowFileHeaders ? <DiffFileHeader file={file} /> : null}
+            {file.notes.length > 0 ? <DiffFileNotes notes={file.notes} /> : null}
+            {splitDiffRows(file.rows).map((row, rowIndex) => (
+              <SplitDiffRowView key={`${file.key}:${rowIndex}`} row={row} />
+            ))}
+          </section>
+        ))}
       </div>
     </div>
   );
 }
 
-function splitDiffRows(content: string): SplitDiffRow[] {
-  const rows: SplitDiffRow[] = [];
-  const pendingDeletes: string[] = [];
+function InlineDiffRow({ row }: { row: DiffContentRow }) {
+  if (row.type === "hunk") {
+    return (
+      <div className="grid min-w-max grid-cols-[3.25rem_3.25rem_1.5rem_minmax(32rem,1fr)] border-y border-sky-100 bg-sky-50 text-sky-800 dark:border-sky-950/70 dark:bg-sky-950/40 dark:text-sky-200">
+        <span className="select-none border-r border-sky-100 px-2 text-right dark:border-sky-900/60" />
+        <span className="select-none border-r border-sky-100 px-2 text-right dark:border-sky-900/60" />
+        <code className="col-span-2 whitespace-pre px-3 py-0.5">{row.text}</code>
+      </div>
+    );
+  }
+
+  if (row.type === "note") {
+    return (
+      <div className="grid min-w-max grid-cols-[3.25rem_3.25rem_1.5rem_minmax(32rem,1fr)] bg-slate-50 text-slate-500 dark:bg-slate-900/70 dark:text-slate-400">
+        <span className="select-none border-r border-slate-200 px-2 text-right dark:border-white/10" />
+        <span className="select-none border-r border-slate-200 px-2 text-right dark:border-white/10" />
+        <code className="col-span-2 whitespace-pre px-3 py-0.5">{row.text}</code>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "grid min-w-max grid-cols-[3.25rem_3.25rem_1.5rem_minmax(32rem,1fr)]",
+        inlineDiffLineClassName(row.kind),
+      )}
+    >
+      <DiffLineNumber value={row.oldNumber} kind={row.kind} />
+      <DiffLineNumber value={row.newNumber} kind={row.kind} />
+      <span className="select-none text-center">{diffLineMarker(row.kind)}</span>
+      <code className="whitespace-pre pr-4">{row.text || " "}</code>
+    </div>
+  );
+}
+
+function SplitDiffRowView({ row }: { row: SplitDiffRow }) {
+  if (row.type === "hunk") {
+    return (
+      <div className="grid grid-cols-2 border-y border-sky-100 bg-sky-50 text-sky-800 dark:border-sky-950/70 dark:bg-sky-950/40 dark:text-sky-200">
+        <code className="border-r border-sky-100 px-4 py-0.5 dark:border-sky-900/60">
+          {row.text}
+        </code>
+        <code className="px-4 py-0.5">{row.text}</code>
+      </div>
+    );
+  }
+
+  if (row.type === "note") {
+    return (
+      <div className="border-b border-slate-100 bg-slate-50 px-4 py-1 text-slate-500 dark:border-white/[0.03] dark:bg-slate-900/70 dark:text-slate-400">
+        <code className="whitespace-pre">{row.text}</code>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 border-b border-slate-100 dark:border-white/[0.03]">
+      <SplitDiffCellView cell={row.left} kind={row.kind} side="left" />
+      <SplitDiffCellView cell={row.right} kind={row.kind} side="right" />
+    </div>
+  );
+}
+
+function SplitDiffCellView({
+  cell,
+  kind,
+  side,
+}: {
+  cell: SplitDiffCell | null;
+  kind: SplitDiffLineKind;
+  side: "left" | "right";
+}) {
+  return (
+    <code
+      className={cn(
+        "grid min-h-5 grid-cols-[3.25rem_1.5rem_minmax(0,1fr)]",
+        side === "left" && "border-r border-slate-200 dark:border-white/10",
+        splitDiffCellClassName(kind, side),
+      )}
+    >
+      <span className="select-none border-r border-current/10 px-2 text-right opacity-70">
+        {cell?.lineNumber ?? ""}
+      </span>
+      <span className="select-none text-center">{cell?.marker ?? ""}</span>
+      <span className="whitespace-pre pr-4">{cell?.text || " "}</span>
+    </code>
+  );
+}
+
+function DiffLineNumber({
+  value,
+  kind,
+}: {
+  value: number | null;
+  kind: DiffLineKind;
+}) {
+  return (
+    <span
+      className={cn(
+        "select-none border-r px-2 text-right text-slate-400 dark:text-slate-500",
+        kind === "add" &&
+          "border-emerald-100 bg-emerald-100/80 text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/60 dark:text-emerald-300",
+        kind === "delete" &&
+          "border-red-100 bg-red-100/80 text-red-700 dark:border-red-900/60 dark:bg-red-950/60 dark:text-red-300",
+        kind === "context" && "border-slate-200 dark:border-white/10",
+      )}
+    >
+      {value ?? ""}
+    </span>
+  );
+}
+
+function DiffFileHeader({ file }: { file: ParsedDiffFile }) {
+  const path = diffFilePath(file);
+  const hasRename = file.oldPath && file.newPath && file.oldPath !== file.newPath;
+
+  return (
+    <div className="sticky top-0 z-10 flex min-w-max items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2 font-sans text-xs text-slate-700 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+      <FileText className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+      <RepoPathText path={path} className="font-semibold" />
+      {hasRename ? (
+        <span className="text-slate-400 dark:text-slate-500">
+          from {file.oldPath}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function DiffFileNotes({ notes }: { notes: string[] }) {
+  return (
+    <div className="flex min-w-max flex-wrap gap-2 border-b border-slate-100 bg-slate-50/70 px-4 py-2 font-sans text-xs text-slate-500 dark:border-white/[0.05] dark:bg-slate-900/50 dark:text-slate-400">
+      {notes.map((note) => (
+        <span
+          key={note}
+          className="rounded border border-slate-200 bg-white px-2 py-0.5 dark:border-slate-700 dark:bg-slate-950"
+        >
+          {note}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function splitDiffRows(diffRows: DiffContentRow[]): SplitDiffRow[] {
+  const splitRows: SplitDiffRow[] = [];
+  const pendingDeletes: Extract<DiffContentRow, { type: "line" }>[] = [];
 
   function flushDeletes() {
     while (pendingDeletes.length > 0) {
-      rows.push({
-        left: pendingDeletes.shift() ?? "",
-        right: "",
+      const deletedLine = pendingDeletes.shift();
+
+      if (!deletedLine) {
+        continue;
+      }
+
+      splitRows.push({
+        type: "line",
         kind: "delete",
+        left: diffCellForLine(deletedLine),
+        right: null,
       });
     }
   }
 
-  for (const line of content.replace(/\n$/, "").split("\n")) {
-    if (isDiffDeletionLine(line)) {
-      pendingDeletes.push(line);
+  for (const row of diffRows) {
+    if (row.type === "hunk" || row.type === "note") {
+      flushDeletes();
+      splitRows.push(row);
       continue;
     }
 
-    if (isDiffAdditionLine(line)) {
+    if (row.kind === "delete") {
+      pendingDeletes.push(row);
+      continue;
+    }
+
+    if (row.kind === "add") {
       if (pendingDeletes.length > 0) {
-        rows.push({
-          left: pendingDeletes.shift() ?? "",
-          right: line,
+        const deletedLine = pendingDeletes.shift();
+
+        if (!deletedLine) {
+          continue;
+        }
+
+        splitRows.push({
+          type: "line",
           kind: "change",
+          left: diffCellForLine(deletedLine),
+          right: diffCellForLine(row),
         });
       } else {
-        rows.push({
-          left: "",
-          right: line,
+        splitRows.push({
+          type: "line",
           kind: "add",
+          left: null,
+          right: diffCellForLine(row),
         });
       }
 
@@ -1960,47 +2173,21 @@ function splitDiffRows(content: string): SplitDiffRow[] {
 
     flushDeletes();
 
-    if (isDiffMetadataLine(line)) {
-      rows.push({
-        left: line,
-        right: "",
-        kind: "meta",
-      });
-      continue;
-    }
-
-    rows.push({
-      left: line,
-      right: line,
+    splitRows.push({
+      type: "line",
       kind: "context",
+      left: diffCellForLine(row),
+      right: diffCellForLine(row, "right"),
     });
   }
 
   flushDeletes();
 
-  return rows;
-}
-
-function isDiffDeletionLine(line: string) {
-  return line.startsWith("-") && !line.startsWith("---");
-}
-
-function isDiffAdditionLine(line: string) {
-  return line.startsWith("+") && !line.startsWith("+++");
-}
-
-function isDiffMetadataLine(line: string) {
-  return (
-    line.startsWith("diff --git") ||
-    line.startsWith("index ") ||
-    line.startsWith("@@") ||
-    line.startsWith("+++") ||
-    line.startsWith("---")
-  );
+  return splitRows;
 }
 
 function splitDiffCellClassName(
-  kind: SplitDiffRow["kind"],
+  kind: SplitDiffLineKind,
   side: "left" | "right",
 ) {
   if (kind === "change") {
@@ -2020,28 +2207,264 @@ function splitDiffCellClassName(
   return "text-slate-700 dark:text-slate-300";
 }
 
-function diffLineClassName(line: string) {
-  if (line.startsWith("diff --git") || line.startsWith("index ")) {
-    return "bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-100";
+function parseDiff(content: string): ParsedDiffFile[] {
+  const files: ParsedDiffFile[] = [];
+  let currentFile: ParsedDiffFile | null = null;
+  let oldLineNumber = 0;
+  let newLineNumber = 0;
+  let inHunk = false;
+
+  function ensureFile() {
+    if (!currentFile) {
+      currentFile = {
+        key: "standalone",
+        oldPath: null,
+        newPath: null,
+        notes: [],
+        rows: [],
+      };
+      files.push(currentFile);
+    }
+
+    return currentFile;
   }
 
-  if (line.startsWith("@@")) {
-    return "bg-sky-50 text-sky-700 dark:bg-sky-950/45 dark:text-sky-200";
+  function startFile(line: string) {
+    const paths = parseDiffGitHeader(line);
+    currentFile = {
+      key: `${files.length}:${line}`,
+      oldPath: paths.oldPath,
+      newPath: paths.newPath,
+      notes: [],
+      rows: [],
+    };
+    files.push(currentFile);
+    oldLineNumber = 0;
+    newLineNumber = 0;
+    inHunk = false;
   }
 
-  if (line.startsWith("+") && !line.startsWith("+++")) {
-    return "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/35 dark:text-emerald-200";
+  const lines = content.replace(/\n$/, "").split("\n");
+
+  for (const line of lines) {
+    if (line.startsWith("diff --git ")) {
+      startFile(line);
+      continue;
+    }
+
+    const file = ensureFile();
+
+    if (line.startsWith("index ")) {
+      continue;
+    }
+
+    if (line.startsWith("--- ")) {
+      file.oldPath = normalizeDiffPath(line.slice(4));
+      continue;
+    }
+
+    if (line.startsWith("+++ ")) {
+      file.newPath = normalizeDiffPath(line.slice(4));
+      continue;
+    }
+
+    if (line.startsWith("new file mode")) {
+      addDiffNote(file, "New file");
+      continue;
+    }
+
+    if (line.startsWith("deleted file mode")) {
+      addDiffNote(file, "Deleted file");
+      continue;
+    }
+
+    if (line.startsWith("old mode") || line.startsWith("new mode")) {
+      addDiffNote(file, "File mode changed");
+      continue;
+    }
+
+    if (line.startsWith("similarity index ")) {
+      addDiffNote(file, `${line.slice("similarity index ".length)} similar`);
+      continue;
+    }
+
+    if (line.startsWith("rename from ")) {
+      file.oldPath = line.slice("rename from ".length);
+      continue;
+    }
+
+    if (line.startsWith("rename to ")) {
+      file.newPath = line.slice("rename to ".length);
+      addDiffNote(file, "Renamed");
+      continue;
+    }
+
+    if (line.startsWith("copy from ")) {
+      file.oldPath = line.slice("copy from ".length);
+      continue;
+    }
+
+    if (line.startsWith("copy to ")) {
+      file.newPath = line.slice("copy to ".length);
+      addDiffNote(file, "Copied");
+      continue;
+    }
+
+    const hunk = line.match(/^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@(.*)$/);
+
+    if (hunk) {
+      oldLineNumber = Number(hunk[1]);
+      newLineNumber = Number(hunk[2]);
+      inHunk = true;
+      file.rows.push({
+        type: "hunk",
+        text: line,
+        oldStart: oldLineNumber,
+        newStart: newLineNumber,
+      });
+      continue;
+    }
+
+    if (line.startsWith("\\ ")) {
+      file.rows.push({ type: "note", text: line.slice(2) });
+      continue;
+    }
+
+    if (inHunk) {
+      if (line.startsWith("+")) {
+        file.rows.push({
+          type: "line",
+          kind: "add",
+          oldNumber: null,
+          newNumber: newLineNumber,
+          text: line.slice(1),
+        });
+        newLineNumber += 1;
+        continue;
+      }
+
+      if (line.startsWith("-")) {
+        file.rows.push({
+          type: "line",
+          kind: "delete",
+          oldNumber: oldLineNumber,
+          newNumber: null,
+          text: line.slice(1),
+        });
+        oldLineNumber += 1;
+        continue;
+      }
+
+      file.rows.push({
+        type: "line",
+        kind: "context",
+        oldNumber: oldLineNumber,
+        newNumber: newLineNumber,
+        text: line.startsWith(" ") ? line.slice(1) : line,
+      });
+      oldLineNumber += 1;
+      newLineNumber += 1;
+      continue;
+    }
+
+    if (line.trim()) {
+      file.rows.push({ type: "note", text: humanizeDiffNote(line) });
+    }
   }
 
-  if (line.startsWith("-") && !line.startsWith("---")) {
-    return "bg-red-50 text-red-800 dark:bg-red-950/35 dark:text-red-200";
+  return files.length > 0 ? files : [];
+}
+
+function parseDiffGitHeader(line: string) {
+  const quoted = line.match(/^diff --git "a\/(.+)" "b\/(.+)"$/);
+
+  if (quoted) {
+    return {
+      oldPath: quoted[1],
+      newPath: quoted[2],
+    };
   }
 
-  if (line.startsWith("+++") || line.startsWith("---")) {
-    return "bg-slate-100 text-slate-700 dark:bg-slate-900/80 dark:text-slate-300";
+  const unquoted = line.match(/^diff --git a\/(.+) b\/(.+)$/);
+
+  if (unquoted) {
+    return {
+      oldPath: unquoted[1],
+      newPath: unquoted[2],
+    };
+  }
+
+  return {
+    oldPath: null,
+    newPath: null,
+  };
+}
+
+function normalizeDiffPath(path: string) {
+  let normalized = path.trim();
+
+  if (normalized.startsWith("\"") && normalized.endsWith("\"")) {
+    normalized = normalized.slice(1, -1);
+  }
+
+  if (normalized === "/dev/null") {
+    return null;
+  }
+
+  return normalized.replace(/^[ab]\//, "");
+}
+
+function addDiffNote(file: ParsedDiffFile, note: string) {
+  if (!file.notes.includes(note)) {
+    file.notes.push(note);
+  }
+}
+
+function humanizeDiffNote(line: string) {
+  if (line.startsWith("Binary files ")) {
+    return "Binary file changed";
+  }
+
+  return line;
+}
+
+function diffFilePath(file: ParsedDiffFile) {
+  return file.newPath ?? file.oldPath ?? "File changed";
+}
+
+function diffLineMarker(kind: DiffLineKind) {
+  if (kind === "add") {
+    return "+";
+  }
+
+  if (kind === "delete") {
+    return "-";
+  }
+
+  return "";
+}
+
+function inlineDiffLineClassName(kind: DiffLineKind) {
+  if (kind === "add") {
+    return "bg-emerald-50 text-emerald-900 dark:bg-emerald-950/35 dark:text-emerald-100";
+  }
+
+  if (kind === "delete") {
+    return "bg-red-50 text-red-900 dark:bg-red-950/35 dark:text-red-100";
   }
 
   return "text-slate-700 dark:text-slate-300";
+}
+
+function diffCellForLine(
+  row: Extract<DiffContentRow, { type: "line" }>,
+  side: "left" | "right" = row.kind === "add" ? "right" : "left",
+): SplitDiffCell {
+  return {
+    lineNumber: side === "right" ? row.newNumber : row.oldNumber,
+    marker: diffLineMarker(row.kind),
+    text: row.text,
+  };
 }
 
 function CommitPanel({
