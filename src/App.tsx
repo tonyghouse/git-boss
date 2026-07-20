@@ -12,6 +12,7 @@ import {
   Moon,
   Plus,
   RefreshCw,
+  Search,
   Settings,
   SquareTerminal,
   Sun,
@@ -1223,6 +1224,7 @@ function BranchDiffWorkspace({
           files={result?.files ?? []}
           loading={branchDiffState.loading}
           hasResult={result !== null}
+          repoPath={status.repoPath}
           selectedPath={selectedBranchDiffPath}
           onFileSelect={handleBranchDiffFileSelect}
         />
@@ -1411,26 +1413,62 @@ function BranchDiffFilesPanel({
   files,
   loading,
   hasResult,
+  repoPath,
   selectedPath,
   onFileSelect,
 }: {
   files: BranchDiffFile[];
   loading: boolean;
   hasResult: boolean;
+  repoPath: string;
   selectedPath: string | null;
   onFileSelect: (file: BranchDiffFile) => void;
 }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const trimmedSearchQuery = searchQuery.trim();
+  const isFiltering = trimmedSearchQuery.length > 0;
+  const visibleFiles = useMemo(
+    () =>
+      files.filter((file) =>
+        branchDiffFileMatchesSearch(file, trimmedSearchQuery, repoPath),
+      ),
+    [files, repoPath, trimmedSearchQuery],
+  );
+
   return (
     <Card className="flex min-h-0 flex-col overflow-hidden">
       <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/60">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             <h2 className="truncate text-sm font-semibold">Changed Files</h2>
-            <Badge>{files.length}</Badge>
+            <Badge>{isFiltering ? `${visibleFiles.length}/${files.length}` : files.length}</Badge>
           </div>
           <p className="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
             Ref-to-ref summary
           </p>
+        </div>
+      </div>
+
+      <div className="border-b border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-950">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <Input
+            value={searchQuery}
+            placeholder="Search files"
+            disabled={loading || files.length === 0}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="h-9 pl-9 pr-9 text-sm"
+          />
+          {searchQuery ? (
+            <button
+              type="button"
+              aria-label="Clear file search"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-200 dark:focus-visible:ring-slate-700"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -1443,9 +1481,13 @@ function BranchDiffFilesPanel({
           <div className="flex h-full min-h-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-4 py-10 text-sm text-slate-500 dark:border-slate-800 dark:bg-white/[0.02] dark:text-slate-400">
             {hasResult ? "No changed files" : "No comparison loaded"}
           </div>
+        ) : visibleFiles.length === 0 ? (
+          <div className="flex h-full min-h-0 items-center justify-center rounded-lg border border-dashed border-slate-200 bg-slate-50/60 px-4 py-10 text-sm text-slate-500 dark:border-slate-800 dark:bg-white/[0.02] dark:text-slate-400">
+            No matching files
+          </div>
         ) : (
           <ul className="space-y-2">
-            {files.map((file) => {
+            {visibleFiles.map((file) => {
               const isSelected =
                 selectedPath !== null &&
                 branchDiffFileMatchesPath(file, selectedPath);
@@ -1515,6 +1557,52 @@ function branchDiffStatusClassName(status: string) {
 
 function branchDiffFileMatchesPath(file: BranchDiffFile, path: string) {
   return file.path === path || file.originalPath === path;
+}
+
+function branchDiffFileMatchesSearch(
+  file: BranchDiffFile,
+  query: string,
+  repoPath: string,
+) {
+  const normalizedQuery = normalizeFileSearchText(query);
+
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return branchDiffFileSearchValues(file, repoPath).some((value) =>
+    value.includes(normalizedQuery),
+  );
+}
+
+function branchDiffFileSearchValues(file: BranchDiffFile, repoPath: string) {
+  const paths = [file.path, file.originalPath].filter(
+    (path): path is string => Boolean(path),
+  );
+
+  return paths
+    .flatMap((path) => [
+      path,
+      fileNameFromRepoPath(path),
+      joinRepoPath(repoPath, path),
+    ])
+    .map(normalizeFileSearchText);
+}
+
+function normalizeFileSearchText(value: string) {
+  return value
+    .replace(/\\/g, "/")
+    .replace(/\/+/g, "/")
+    .toLowerCase();
+}
+
+function fileNameFromRepoPath(path: string) {
+  const parts = path.replace(/\\/g, "/").split("/").filter(Boolean);
+  return parts.at(-1) ?? path;
+}
+
+function joinRepoPath(repoPath: string, path: string) {
+  return `${repoPath.replace(/[\\/]+$/, "")}/${path.replace(/^[\\/]+/, "")}`;
 }
 
 function GitFailurePanel({
