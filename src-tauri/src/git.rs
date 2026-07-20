@@ -167,7 +167,7 @@ pub fn branch_diff(
     ensure_commit_ref(&repo_path, base_ref)?;
     ensure_commit_ref(&repo_path, compare_ref)?;
 
-    let range = format!("{base_ref}..{compare_ref}");
+    let range = branch_diff_range(&repo_path, base_ref, compare_ref)?;
     let files_output = run_git_raw(
         &repo_path,
         &["diff", "--name-status", "-z", "--find-renames", &range],
@@ -443,6 +443,24 @@ fn branch_distance(
     let compare_only = parts.next().and_then(|part| part.parse().ok()).unwrap_or(0);
 
     Ok((base_only, compare_only))
+}
+
+fn branch_diff_range(
+    repo_path: &Path,
+    base_ref: &str,
+    compare_ref: &str,
+) -> Result<String, GitCommandFailure> {
+    let output = run_git_raw_allow_exit_codes(
+        repo_path,
+        &["merge-base", base_ref, compare_ref],
+        &[0, 1],
+    )?;
+
+    if output.status.code() == Some(0) {
+        Ok(format!("{base_ref}...{compare_ref}"))
+    } else {
+        Ok(format!("{base_ref}..{compare_ref}"))
+    }
 }
 
 fn parse_branch_diff_files(output: &str) -> Vec<BranchDiffFile> {

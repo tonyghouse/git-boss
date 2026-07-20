@@ -1081,10 +1081,60 @@ function BranchDiffWorkspace({
   onSwapRefs: () => void;
 }) {
   const result = branchDiffState.result;
+  const [selectedBranchDiffPath, setSelectedBranchDiffPath] = useState<string | null>(null);
+  const branchDiffFileElementsRef = useRef(new Map<string, HTMLElement>());
   const canCompare =
     baseRef.trim().length > 0 &&
     compareRef.trim().length > 0 &&
     !branchDiffState.loading;
+
+  useEffect(() => {
+    if (
+      selectedBranchDiffPath &&
+      (!result ||
+        !result.files.some((file) =>
+          branchDiffFileMatchesPath(file, selectedBranchDiffPath),
+        ))
+    ) {
+      setSelectedBranchDiffPath(null);
+    }
+  }, [result, selectedBranchDiffPath]);
+
+  useEffect(() => {
+    if (!selectedBranchDiffPath) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      scrollBranchDiffFileIntoView(selectedBranchDiffPath);
+    });
+  }, [mode, selectedBranchDiffPath]);
+
+  function scrollBranchDiffFileIntoView(path: string) {
+    branchDiffFileElementsRef.current
+      .get(path)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function handleBranchDiffFileSelect(file: BranchDiffFile) {
+    setSelectedBranchDiffPath(file.path);
+    window.requestAnimationFrame(() => {
+      scrollBranchDiffFileIntoView(file.path);
+    });
+  }
+
+  function registerBranchDiffFileElement(
+    file: ParsedDiffFile,
+    element: HTMLElement | null,
+  ) {
+    diffFilePathKeys(file).forEach((path) => {
+      if (element) {
+        branchDiffFileElementsRef.current.set(path, element);
+      } else {
+        branchDiffFileElementsRef.current.delete(path);
+      }
+    });
+  }
 
   return (
     <section className="mx-auto flex h-full w-full max-w-[1600px] flex-col gap-3">
@@ -1173,6 +1223,8 @@ function BranchDiffWorkspace({
           files={result?.files ?? []}
           loading={branchDiffState.loading}
           hasResult={result !== null}
+          selectedPath={selectedBranchDiffPath}
+          onFileSelect={handleBranchDiffFileSelect}
         />
 
         <Card className="flex min-h-0 flex-col overflow-hidden">
@@ -1229,7 +1281,13 @@ function BranchDiffWorkspace({
                 failure={branchDiffState.failure}
               />
             ) : result?.content.trim() ? (
-              <DiffViewer content={result.content} mode={mode} showFileHeaders />
+              <DiffViewer
+                content={result.content}
+                mode={mode}
+                showFileHeaders
+                activeFilePath={selectedBranchDiffPath}
+                onFileElement={registerBranchDiffFileElement}
+              />
             ) : result ? (
               <EmptyDiffState title="No diff output" />
             ) : (
@@ -1353,10 +1411,14 @@ function BranchDiffFilesPanel({
   files,
   loading,
   hasResult,
+  selectedPath,
+  onFileSelect,
 }: {
   files: BranchDiffFile[];
   loading: boolean;
   hasResult: boolean;
+  selectedPath: string | null;
+  onFileSelect: (file: BranchDiffFile) => void;
 }) {
   return (
     <Card className="flex min-h-0 flex-col overflow-hidden">
@@ -1383,33 +1445,49 @@ function BranchDiffFilesPanel({
           </div>
         ) : (
           <ul className="space-y-2">
-            {files.map((file) => (
-              <li key={`${file.status}:${file.originalPath ?? ""}:${file.path}`}>
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-3 dark:border-slate-800 dark:bg-slate-950">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <FileText className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
-                    <RepoPathText
-                      path={file.path}
-                      className="text-[13px] font-semibold leading-5"
-                    />
-                  </div>
-                  {file.originalPath ? (
-                    <span className="mt-1 flex min-w-0 items-center gap-1 pl-6 text-[11px] text-slate-500 dark:text-slate-400">
-                      <span className="shrink-0">from</span>
-                      <RepoPathText path={file.originalPath} className="flex-1" />
-                    </span>
-                  ) : null}
-                  <div className="mt-2 flex flex-wrap items-center gap-2 pl-6">
-                    <Badge className={branchDiffStatusClassName(file.status)}>
-                      {branchDiffStatusLabel(file)}
-                    </Badge>
-                    <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
-                      {file.status}
-                    </span>
-                  </div>
-                </div>
-              </li>
-            ))}
+            {files.map((file) => {
+              const isSelected =
+                selectedPath !== null &&
+                branchDiffFileMatchesPath(file, selectedPath);
+
+              return (
+                <li key={`${file.status}:${file.originalPath ?? ""}:${file.path}`}>
+                  <button
+                    type="button"
+                    aria-current={isSelected ? "location" : undefined}
+                    onClick={() => onFileSelect(file)}
+                    className={cn(
+                      "w-full rounded-lg border px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-700",
+                      isSelected
+                        ? "border-sky-300 bg-sky-50 shadow-sm shadow-sky-950/5 dark:border-sky-800 dark:bg-sky-950/25"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700 dark:hover:bg-slate-900/80",
+                    )}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <FileText className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
+                      <RepoPathText
+                        path={file.path}
+                        className="text-[13px] font-semibold leading-5"
+                      />
+                    </div>
+                    {file.originalPath ? (
+                      <span className="mt-1 flex min-w-0 items-center gap-1 pl-6 text-[11px] text-slate-500 dark:text-slate-400">
+                        <span className="shrink-0">from</span>
+                        <RepoPathText path={file.originalPath} className="flex-1" />
+                      </span>
+                    ) : null}
+                    <div className="mt-2 flex flex-wrap items-center gap-2 pl-6">
+                      <Badge className={branchDiffStatusClassName(file.status)}>
+                        {branchDiffStatusLabel(file)}
+                      </Badge>
+                      <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                        {file.status}
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -1433,6 +1511,10 @@ function branchDiffStatusClassName(status: string) {
   }
 
   return "border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200";
+}
+
+function branchDiffFileMatchesPath(file: BranchDiffFile, path: string) {
+  return file.path === path || file.originalPath === path;
 }
 
 function GitFailurePanel({
@@ -1836,18 +1918,36 @@ function DiffViewer({
   content,
   mode,
   showFileHeaders,
+  activeFilePath = null,
+  onFileElement,
 }: {
   content: string;
   mode: DiffMode;
   showFileHeaders: boolean;
+  activeFilePath?: string | null;
+  onFileElement?: (file: ParsedDiffFile, element: HTMLElement | null) => void;
 }) {
   const files = useMemo(() => parseDiff(content), [content]);
 
   if (mode === "split") {
-    return <SplitDiffViewer files={files} showFileHeaders={showFileHeaders} />;
+    return (
+      <SplitDiffViewer
+        files={files}
+        showFileHeaders={showFileHeaders}
+        activeFilePath={activeFilePath}
+        onFileElement={onFileElement}
+      />
+    );
   }
 
-  return <InlineDiffViewer files={files} showFileHeaders={showFileHeaders} />;
+  return (
+    <InlineDiffViewer
+      files={files}
+      showFileHeaders={showFileHeaders}
+      activeFilePath={activeFilePath}
+      onFileElement={onFileElement}
+    />
+  );
 }
 
 type DiffLineKind = "context" | "add" | "delete";
@@ -1882,9 +1982,13 @@ type ParsedDiffFile = {
 function InlineDiffViewer({
   files,
   showFileHeaders,
+  activeFilePath,
+  onFileElement,
 }: {
   files: ParsedDiffFile[];
   showFileHeaders: boolean;
+  activeFilePath: string | null;
+  onFileElement?: (file: ParsedDiffFile, element: HTMLElement | null) => void;
 }) {
   const shouldShowFileHeaders = showFileHeaders || files.length > 1;
 
@@ -1894,9 +1998,15 @@ function InlineDiffViewer({
         {files.map((file, fileIndex) => (
           <section
             key={file.key}
-            className={cn(fileIndex > 0 && "border-t border-slate-200 dark:border-white/10")}
+            ref={(element) => onFileElement?.(file, element)}
+            className={cn(
+              "scroll-mt-10",
+              fileIndex > 0 && "border-t border-slate-200 dark:border-white/10",
+            )}
           >
-            {shouldShowFileHeaders ? <DiffFileHeader file={file} /> : null}
+            {shouldShowFileHeaders ? (
+              <DiffFileHeader file={file} active={diffFileMatchesPath(file, activeFilePath)} />
+            ) : null}
             {file.notes.length > 0 ? <DiffFileNotes notes={file.notes} /> : null}
             <div className="min-w-max">
               {file.rows.map((row, rowIndex) => (
@@ -1937,9 +2047,13 @@ type SplitDiffRow =
 function SplitDiffViewer({
   files,
   showFileHeaders,
+  activeFilePath,
+  onFileElement,
 }: {
   files: ParsedDiffFile[];
   showFileHeaders: boolean;
+  activeFilePath: string | null;
+  onFileElement?: (file: ParsedDiffFile, element: HTMLElement | null) => void;
 }) {
   const shouldShowFileHeaders = showFileHeaders || files.length > 1;
 
@@ -1953,9 +2067,15 @@ function SplitDiffViewer({
         {files.map((file, fileIndex) => (
           <section
             key={file.key}
-            className={cn(fileIndex > 0 && "border-t border-slate-200 dark:border-white/10")}
+            ref={(element) => onFileElement?.(file, element)}
+            className={cn(
+              "scroll-mt-10",
+              fileIndex > 0 && "border-t border-slate-200 dark:border-white/10",
+            )}
           >
-            {shouldShowFileHeaders ? <DiffFileHeader file={file} /> : null}
+            {shouldShowFileHeaders ? (
+              <DiffFileHeader file={file} active={diffFileMatchesPath(file, activeFilePath)} />
+            ) : null}
             {file.notes.length > 0 ? <DiffFileNotes notes={file.notes} /> : null}
             {splitDiffRows(file.rows).map((row, rowIndex) => (
               <SplitDiffRowView key={`${file.key}:${rowIndex}`} row={row} />
@@ -2080,12 +2200,25 @@ function DiffLineNumber({
   );
 }
 
-function DiffFileHeader({ file }: { file: ParsedDiffFile }) {
+function DiffFileHeader({
+  file,
+  active,
+}: {
+  file: ParsedDiffFile;
+  active: boolean;
+}) {
   const path = diffFilePath(file);
   const hasRename = file.oldPath && file.newPath && file.oldPath !== file.newPath;
 
   return (
-    <div className="sticky top-0 z-10 flex min-w-max items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-2 font-sans text-xs text-slate-700 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+    <div
+      className={cn(
+        "sticky top-0 z-10 flex min-w-max items-center gap-2 border-b px-4 py-2 font-sans text-xs text-slate-700 dark:text-slate-200",
+        active
+          ? "border-sky-200 bg-sky-50 dark:border-sky-900/70 dark:bg-sky-950/55"
+          : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-900",
+      )}
+    >
       <FileText className="h-4 w-4 shrink-0 text-slate-400" aria-hidden="true" />
       <RepoPathText path={path} className="font-semibold" />
       {hasRename ? (
@@ -2430,6 +2563,16 @@ function humanizeDiffNote(line: string) {
 
 function diffFilePath(file: ParsedDiffFile) {
   return file.newPath ?? file.oldPath ?? "File changed";
+}
+
+function diffFilePathKeys(file: ParsedDiffFile) {
+  return Array.from(
+    new Set([file.newPath, file.oldPath].filter((path): path is string => Boolean(path))),
+  );
+}
+
+function diffFileMatchesPath(file: ParsedDiffFile, path: string | null) {
+  return path !== null && diffFilePathKeys(file).includes(path);
 }
 
 function diffLineMarker(kind: DiffLineKind) {
