@@ -1,62 +1,39 @@
-<svg width="1024" height="1024" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="background" x1="68" y1="48" x2="444" y2="464" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FF765E" />
-      <stop offset="0.48" stop-color="#F45134" />
-      <stop offset="1" stop-color="#C92E1D" />
-    </linearGradient>
-    <linearGradient id="backgroundSheen" x1="102" y1="62" x2="350" y2="390" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF" stop-opacity="0.22" />
-      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.04" />
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
-    </linearGradient>
-    <linearGradient id="crownMetal" x1="326" y1="105" x2="408" y2="188" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#F1F4F7" />
-      <stop offset="0.2" stop-color="#8C939D" />
-      <stop offset="0.48" stop-color="#292D33" />
-      <stop offset="0.7" stop-color="#606771" />
-      <stop offset="1" stop-color="#14171B" />
-    </linearGradient>
-    <linearGradient id="crownCenter" x1="360" y1="103" x2="374" y2="180" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#DCE1E7" />
-      <stop offset="0.42" stop-color="#5C626B" />
-      <stop offset="1" stop-color="#1D2025" />
-    </linearGradient>
-    <linearGradient id="crownBand" x1="335" y1="175" x2="402" y2="204" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#89919B" />
-      <stop offset="0.5" stop-color="#383C43" />
-      <stop offset="1" stop-color="#121418" />
-    </linearGradient>
-    <linearGradient id="crownEdge" x1="339" y1="198" x2="400" y2="214" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#282C31" />
-      <stop offset="1" stop-color="#060708" />
-    </linearGradient>
-    <filter id="markShadow" x="66" y="82" width="380" height="386" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="13" stdDeviation="11" flood-color="#6A130B" flood-opacity="0.27" />
-    </filter>
-    <filter id="crownShadow" x="294" y="76" width="145" height="157" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#5B2108" flood-opacity="0.34" />
-    </filter>
-  </defs>
-
-  <rect width="512" height="512" rx="118" fill="url(#background)" />
-  <rect x="3" y="3" width="506" height="506" rx="115" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="6" />
-  <path d="M83 72C140 27 231 19 315 45C387 67 440 115 462 181C439 136 393 108 332 102C246 93 154 126 97 192C63 231 43 278 38 327V140C38 112 55 91 83 72Z" fill="url(#backgroundSheen)" />
-
-  <g filter="url(#markShadow)">
-    <svg x="86" y="96" width="340" height="340" viewBox="0 0 78 78">
-      <path fill="#FFFFFF" transform="translate(10 10) rotate(-45 29 29)" d="M5,58c-2.76142,0 -5,-2.23858 -5,-5v-48c0,-2.76142 2.23858,-5 5,-5h33v12.54404c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,0.73514 0.13221,1.43941 0.37415,2.09031l-15.28384,15.28384c-0.6509,-0.24194 -1.35517,-0.37415 -2.09031,-0.37415c-3.31371,0 -6,2.68629 -6,6c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-0.73514 -0.13221,-1.43941 -0.37415,-2.09031l14.87415,-14.87415l0,11.50851c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.08808c2.06553,-0.94801 3.5,-3.03446 3.5,-5.45596c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.54404h10c2.76142,0 5,2.23858 5,5v48c0,2.76142 -2.23858,5 -5,5z" />
-    </svg>
-  </g>
-
-  <g filter="url(#crownShadow)" transform="rotate(9 370 157)">
-    <path d="M318 125L345 147L364 103C366 98 369 98 371 103L390 146L420 121L406 181H333L318 125Z" fill="url(#crownMetal)" />
-    <path d="M345 147L364 103C366 98 369 98 371 103L390 146L381 179H355L345 147Z" fill="url(#crownCenter)" />
-    <path d="M318 125L345 147L355 179H333L318 125Z" fill="#E7EBF0" fill-opacity="0.18" />
-    <path d="M390 146L420 121L406 181H381L390 146Z" fill="#000000" fill-opacity="0.24" />
-    <path d="M333 177H406L403 197C402 202 398 205 392 205H348C343 205 339 202 338 197L333 177Z" fill="url(#crownBand)" />
-    <path d="M338 196C358 201 383 201 403 196L401 205C383 212 358 212 340 205L338 196Z" fill="url(#crownEdge)" />
-    <path d="M341 183C359 187 381 187 399 183" stroke="#F4F7FA" stroke-width="3" stroke-linecap="round" opacity="0.4" />
-    <path d="M326 130L345 153L365 110" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.38" />
-  </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <g transform="matrix(2,0,0,2,0,0)">
+        <path d="M512,59L512,453C512,485.563 485.563,512 453,512L59,512C26.437,512 0,485.563 0,453L0,59C0,26.437 26.437,0 59,0L453,0C485.563,0 512,26.437 512,59Z" style="fill:url(#_Linear1);"/>
+    </g>
+    <g transform="matrix(2,0,0,2,0,0)">
+        <path d="M509,60.5L509,451.5C509,483.235 483.235,509 451.5,509L60.5,509C28.765,509 3,483.235 3,451.5L3,60.5C3,28.765 28.765,3 60.5,3L451.5,3C483.235,3 509,28.765 509,60.5Z" style="fill:none;stroke:white;stroke-opacity:0.16;stroke-width:6px;"/>
+    </g>
+    <g transform="matrix(2,0,0,2,0,0)">
+        <path d="M83,72C140,27 231,19 315,45C387,67 440,115 462,181C439,136 393,108 332,102C246,93 154,126 97,192C63,231 43,278 38,327L38,140C38,112 55,91 83,72Z" style="fill:url(#_Linear2);fill-rule:nonzero;"/>
+    </g>
+    <g transform="matrix(2,0,0,2,0,0)">
+        <g transform="matrix(3.08226,-3.08226,3.08226,3.08226,77.228901,266)">
+            <path d="M5,58C2.239,58 0,55.761 0,53L0,5C0,2.239 2.239,0 5,0L38,0L38,12.544C35.934,13.492 34.5,15.579 34.5,18C34.5,18.735 34.632,19.439 34.874,20.09L19.59,35.374C18.939,35.132 18.235,35 17.5,35C14.186,35 11.5,37.686 11.5,41C11.5,44.314 14.186,47 17.5,47C20.814,47 23.5,44.314 23.5,41C23.5,40.265 23.368,39.561 23.126,38.91L38,24.036L38,35.544C35.934,36.492 34.5,38.579 34.5,41C34.5,44.314 37.186,47 40.5,47C43.814,47 46.5,44.314 46.5,41C46.5,38.579 45.066,36.492 43,35.544L43,23.456C45.066,22.508 46.5,20.422 46.5,18C46.5,15.579 45.066,13.492 43,12.544L43,0L53,0C55.761,0 58,2.239 58,5L58,53C58,55.761 55.761,58 53,58L5,58Z" style="fill:white;fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g transform="matrix(3.954481,0,0,3.765,154.142257,59.44)" style="filter:url(#_CrownDepth);">
+        <path d="M36,30L54,37C52,42 51,47 52,51L67,51L91,19L117,51L131,51C132,47 131,42 129,37L146,30L138,69L45,69L36,30Z" style="fill:url(#_GoldBase);fill-rule:nonzero;"/>
+        <g style="clip-path:url(#_CrownClip);">
+            <path d="M67,51L91,19L91,69L54,69Z" style="fill:url(#_GoldLight);fill-rule:nonzero;"/>
+            <path d="M91,19L117,51L131,51L138,69L91,69Z" style="fill:rgb(104,55,5);fill-opacity:0.14;fill-rule:nonzero;"/>
+            <path d="M78,29L85,21L119,69L104,69Z" style="fill:url(#_GoldGlint);fill-rule:nonzero;"/>
+            <path d="M41,55L142,55L138,69L45,69Z" style="fill:url(#_GoldBand);fill-rule:nonzero;"/>
+            <path d="M43,56C70,52 114,52 141,56" style="fill:none;stroke:rgb(255,239,166);stroke-opacity:0.62;stroke-width:1.2px;stroke-linecap:round;"/>
+        </g>
+        <path d="M36,30L54,37C52,42 51,47 52,51L67,51L91,19L117,51L131,51C132,47 131,42 129,37L146,30L138,69L45,69L36,30Z" style="fill:none;stroke:rgb(111,61,7);stroke-opacity:0.72;stroke-width:0.65px;stroke-linejoin:round;"/>
+    </g>
+    <defs>
+        <linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(376,416,-416,376,68,48)"><stop offset="0" style="stop-color:rgb(255,118,94);stop-opacity:1"/><stop offset="0.48" style="stop-color:rgb(244,81,52);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(201,46,29);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(248,328,-328,248,102,62)"><stop offset="0" style="stop-color:white;stop-opacity:0.22"/><stop offset="0.55" style="stop-color:white;stop-opacity:0.04"/><stop offset="1" style="stop-color:white;stop-opacity:0"/></linearGradient>
+        <linearGradient id="_GoldBase" x1="36" y1="19" x2="146" y2="69" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:rgb(126,70,8);stop-opacity:1"/><stop offset="0.2" style="stop-color:rgb(235,190,73);stop-opacity:1"/><stop offset="0.34" style="stop-color:rgb(255,240,158);stop-opacity:1"/><stop offset="0.52" style="stop-color:rgb(197,127,18);stop-opacity:1"/><stop offset="0.72" style="stop-color:rgb(246,211,105);stop-opacity:1"/><stop offset="1" style="stop-color:rgb(120,65,7);stop-opacity:1"/></linearGradient>
+        <linearGradient id="_GoldLight" x1="60" y1="24" x2="95" y2="66" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:white;stop-opacity:0.48"/><stop offset="0.5" style="stop-color:rgb(255,232,139);stop-opacity:0.18"/><stop offset="1" style="stop-color:rgb(119,61,4);stop-opacity:0.18"/></linearGradient>
+        <linearGradient id="_GoldGlint" x1="78" y1="25" x2="113" y2="66" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:white;stop-opacity:0"/><stop offset="0.42" style="stop-color:white;stop-opacity:0.68"/><stop offset="0.58" style="stop-color:rgb(255,247,205);stop-opacity:0.42"/><stop offset="1" style="stop-color:white;stop-opacity:0"/></linearGradient>
+        <linearGradient id="_GoldBand" x1="91" y1="54" x2="91" y2="69" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:rgb(220,157,38);stop-opacity:0.7"/><stop offset="0.38" style="stop-color:rgb(174,103,10);stop-opacity:0.82"/><stop offset="1" style="stop-color:rgb(91,45,3);stop-opacity:0.92"/></linearGradient>
+        <clipPath id="_CrownClip"><path d="M36,30L54,37C52,42 51,47 52,51L67,51L91,19L117,51L131,51C132,47 131,42 129,37L146,30L138,69L45,69L36,30Z"/></clipPath>
+        <filter id="_CrownDepth" x="32" y="15" width="120" height="62" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feDropShadow dx="0" dy="2" stdDeviation="1.6" flood-color="rgb(91,34,0)" flood-opacity="0.28"/></filter>
+    </defs>
 </svg>
