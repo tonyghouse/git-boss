@@ -1,81 +1,62 @@
 <svg width="1024" height="1024" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="background" x1="78" y1="42" x2="434" y2="470" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#07111F" />
-      <stop offset="0.5" stop-color="#123A7A" />
-      <stop offset="1" stop-color="#2563EB" />
+    <linearGradient id="background" x1="68" y1="48" x2="444" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF765E" />
+      <stop offset="0.48" stop-color="#F45134" />
+      <stop offset="1" stop-color="#C92E1D" />
     </linearGradient>
-    <linearGradient id="gold" x1="190" y1="104" x2="322" y2="190" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFF8C7" />
-      <stop offset="0.36" stop-color="#FCD34D" />
-      <stop offset="0.72" stop-color="#F59E0B" />
-      <stop offset="1" stop-color="#B45309" />
-    </linearGradient>
-    <radialGradient id="crownShine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(238 126) rotate(33) scale(91 48)">
-      <stop stop-color="#FFFFFF" stop-opacity="0.72" />
-      <stop offset="0.46" stop-color="#FFF7CC" stop-opacity="0.26" />
+    <linearGradient id="backgroundSheen" x1="102" y1="62" x2="350" y2="390" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.22" />
+      <stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0.04" />
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0" />
-    </radialGradient>
-    <linearGradient id="crownBase" x1="210" y1="164" x2="302" y2="196" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFE98A" />
-      <stop offset="0.56" stop-color="#FBBF24" />
-      <stop offset="1" stop-color="#D97706" />
     </linearGradient>
-    <radialGradient id="sparkleShine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(169 132) rotate(45) scale(14)">
-      <stop stop-color="#FFFFFF" />
-      <stop offset="0.42" stop-color="#FFF4B8" />
-      <stop offset="1" stop-color="#F59E0B" />
-    </radialGradient>
-    <linearGradient id="letterLight" x1="104" y1="202" x2="408" y2="340" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#FFFFFF" />
-      <stop offset="0.55" stop-color="#F8FAFC" />
-      <stop offset="1" stop-color="#DDEAFE" />
+    <linearGradient id="crownMetal" x1="326" y1="105" x2="408" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F1F4F7" />
+      <stop offset="0.2" stop-color="#8C939D" />
+      <stop offset="0.48" stop-color="#292D33" />
+      <stop offset="0.7" stop-color="#606771" />
+      <stop offset="1" stop-color="#14171B" />
     </linearGradient>
-    <filter id="markShadow" x="42" y="160" width="428" height="230" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="20" stdDeviation="16" flood-color="#020617" flood-opacity="0.34" />
+    <linearGradient id="crownCenter" x1="360" y1="103" x2="374" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DCE1E7" />
+      <stop offset="0.42" stop-color="#5C626B" />
+      <stop offset="1" stop-color="#1D2025" />
+    </linearGradient>
+    <linearGradient id="crownBand" x1="335" y1="175" x2="402" y2="204" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#89919B" />
+      <stop offset="0.5" stop-color="#383C43" />
+      <stop offset="1" stop-color="#121418" />
+    </linearGradient>
+    <linearGradient id="crownEdge" x1="339" y1="198" x2="400" y2="214" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#282C31" />
+      <stop offset="1" stop-color="#060708" />
+    </linearGradient>
+    <filter id="markShadow" x="66" y="82" width="380" height="386" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="13" stdDeviation="11" flood-color="#6A130B" flood-opacity="0.27" />
     </filter>
-    <filter id="goldGlow" x="160" y="86" width="192" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="0" stdDeviation="11" flood-color="#FACC15" flood-opacity="0.48" />
-      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#92400E" flood-opacity="0.2" />
-    </filter>
-    <filter id="sparkleGlow" x="156" y="98" width="200" height="54" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="#FFFFFF" flood-opacity="0.82" />
-      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#FACC15" flood-opacity="0.28" />
+    <filter id="crownShadow" x="294" y="76" width="145" height="157" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#5B2108" flood-opacity="0.34" />
     </filter>
   </defs>
 
-  <rect width="512" height="512" rx="112" fill="url(#background)" />
-  <path d="M88 78C132 40 211 31 292 47C371 63 428 104 447 164C463 215 447 270 406 327C360 390 293 433 218 439C143 445 83 411 58 356C28 292 33 126 88 78Z" fill="#FFFFFF" fill-opacity="0.07" />
-  <path d="M84 431C140 451 217 457 291 435C363 414 420 366 443 304C451 408 401 512 270 512H112C50 512 0 462 0 400V311C16 364 45 407 84 431Z" fill="#020617" fill-opacity="0.16" />
+  <rect width="512" height="512" rx="118" fill="url(#background)" />
+  <rect x="3" y="3" width="506" height="506" rx="115" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="6" />
+  <path d="M83 72C140 27 231 19 315 45C387 67 440 115 462 181C439 136 393 108 332 102C246 93 154 126 97 192C63 231 43 278 38 327V140C38 112 55 91 83 72Z" fill="url(#backgroundSheen)" />
 
   <g filter="url(#markShadow)">
-    <text x="256" y="336" text-anchor="middle" fill="url(#letterLight)" font-family="Arial, Helvetica, sans-serif" font-size="168" font-weight="900" letter-spacing="0">GIT</text>
+    <svg x="86" y="96" width="340" height="340" viewBox="0 0 78 78">
+      <path fill="#FFFFFF" transform="translate(10 10) rotate(-45 29 29)" d="M5,58c-2.76142,0 -5,-2.23858 -5,-5v-48c0,-2.76142 2.23858,-5 5,-5h33v12.54404c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,0.73514 0.13221,1.43941 0.37415,2.09031l-15.28384,15.28384c-0.6509,-0.24194 -1.35517,-0.37415 -2.09031,-0.37415c-3.31371,0 -6,2.68629 -6,6c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-0.73514 -0.13221,-1.43941 -0.37415,-2.09031l14.87415,-14.87415l0,11.50851c-2.06553,0.94801 -3.5,3.03446 -3.5,5.45596c0,3.31371 2.68629,6 6,6c3.31371,0 6,-2.68629 6,-6c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.08808c2.06553,-0.94801 3.5,-3.03446 3.5,-5.45596c0,-2.42149 -1.43447,-4.50795 -3.5,-5.45596l0,-12.54404h10c2.76142,0 5,2.23858 5,5v48c0,2.76142 -2.23858,5 -5,5z" />
+    </svg>
   </g>
 
-  <g filter="url(#goldGlow)">
-    <path d="M202 169C217 165 224 151 224 132C233 146 242 156 251 162C253 148 254 133 256 119C258 133 259 148 261 162C270 156 279 146 288 132C288 151 295 165 310 169L300 192H212L202 169Z" fill="url(#gold)" stroke="#FFF2A8" stroke-width="4" stroke-linejoin="round" />
-    <path d="M221 168C237 160 249 145 256 127C263 145 275 160 291 168H221Z" fill="url(#crownShine)" opacity="0.68" />
-    <path d="M213 171H299L296 194H216L213 171Z" fill="url(#crownBase)" />
-    <path d="M222 185H290" stroke="#FFF3B0" stroke-width="4" stroke-linecap="round" opacity="0.62" />
-  </g>
-
-  <g filter="url(#sparkleGlow)">
-    <g stroke-linecap="round">
-      <path d="M169 128.5V139.5M163.5 134H174.5" stroke="#FFF8C7" stroke-width="1.8" />
-      <circle cx="169" cy="134" r="2.2" fill="#FFFFFF" />
-      <path d="M343 134V142M339 138H347" stroke="#FFD978" stroke-width="1.5" />
-      <circle cx="343" cy="138" r="1.7" fill="#FFF7C2" />
-      <path d="M309 115V121M306 118H312" stroke="#FFFFFF" stroke-width="1.25" opacity="0.76" />
-      <path d="M203 121V126M200.5 123.5H205.5" stroke="#FFF8C7" stroke-width="1.1" opacity="0.62" />
-    </g>
-    <g fill="#FFFFFF">
-      <circle cx="324" cy="111" r="1.8" opacity="0.9" />
-      <circle cx="188" cy="112" r="1.25" opacity="0.72" />
-      <circle cx="357" cy="122" r="1.1" opacity="0.64" />
-      <circle cx="156" cy="121" r="0.95" opacity="0.58" />
-      <circle cx="336" cy="103" r="1.05" opacity="0.66" />
-      <circle cx="368" cy="135" r="0.85" opacity="0.52" />
-      <circle cx="181" cy="148" r="0.8" opacity="0.48" />
-    </g>
+  <g filter="url(#crownShadow)" transform="rotate(9 370 157)">
+    <path d="M318 125L345 147L364 103C366 98 369 98 371 103L390 146L420 121L406 181H333L318 125Z" fill="url(#crownMetal)" />
+    <path d="M345 147L364 103C366 98 369 98 371 103L390 146L381 179H355L345 147Z" fill="url(#crownCenter)" />
+    <path d="M318 125L345 147L355 179H333L318 125Z" fill="#E7EBF0" fill-opacity="0.18" />
+    <path d="M390 146L420 121L406 181H381L390 146Z" fill="#000000" fill-opacity="0.24" />
+    <path d="M333 177H406L403 197C402 202 398 205 392 205H348C343 205 339 202 338 197L333 177Z" fill="url(#crownBand)" />
+    <path d="M338 196C358 201 383 201 403 196L401 205C383 212 358 212 340 205L338 196Z" fill="url(#crownEdge)" />
+    <path d="M341 183C359 187 381 187 399 183" stroke="#F4F7FA" stroke-width="3" stroke-linecap="round" opacity="0.4" />
+    <path d="M326 130L345 153L365 110" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.38" />
   </g>
 </svg>
