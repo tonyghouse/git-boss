@@ -127,32 +127,7 @@ if exist "%EXE%" (
   exit /b 0
 )
 
-set "SOURCE_DIR=$RootDir"
-if exist "%SOURCE_DIR%\package.json" (
-  powershell -NoProfile -ExecutionPolicy Bypass -Command "`$ProgressPreference='SilentlyContinue'; try { `$response = Invoke-WebRequest -UseBasicParsing -TimeoutSec 1 'http://127.0.0.1:1421/'; if (`$response.Content -like '*<title>GitBoss</title>*') { exit 0 } exit 1 } catch { exit 1 }"
-  if "!ERRORLEVEL!"=="0" (
-    set "DEBUG_EXE=%SOURCE_DIR%\src-tauri\target\debug\gitboss.exe"
-
-    if not exist "%DEBUG_EXE%" (
-      pushd "%SOURCE_DIR%\src-tauri"
-      cargo build
-      set "EXIT_CODE=!ERRORLEVEL!"
-      popd
-      if not "!EXIT_CODE!"=="0" exit /b !EXIT_CODE!
-    )
-
-    start "" "%DEBUG_EXE%" "%FULLTARGET%"
-    exit /b 0
-  )
-
-  pushd "%SOURCE_DIR%"
-  npm run desktop:dev -- -- -- "%FULLTARGET%"
-  set "EXIT_CODE=!ERRORLEVEL!"
-  popd
-  exit /b !EXIT_CODE!
-)
-
-echo GitBoss is not installed and the source checkout was not found. 1>&2
+echo GitBoss is not installed. Refusing to start a development fallback; reinstall the release app. 1>&2
 exit /b 1
 "@
 

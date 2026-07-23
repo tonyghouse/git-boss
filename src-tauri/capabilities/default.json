@@ -2,6 +2,6 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Default permissions for GitBoss",
-  "windows": ["main"],
+  "windows": ["main", "repo-*"],
   "permissions": ["core:default"]
 }

@@ -8,6 +8,10 @@ gitboss .
 
 That opens the current Git working tree in GitBoss, where you can stage files, unstage files, write a commit message, and commit.
 
+GitBoss runs one native process per user. Opening another repository creates an
+isolated window in that process, opening an already-open repository focuses its
+window, and closing the final window exits GitBoss completely.
+
 When a Git command fails, GitBoss shows a toast with the exact command it ran and the error returned by Git.
 
 ## Tech Stack
@@ -153,12 +157,9 @@ Run the desktop app against a repository:
 npm run desktop:dev -- -- -- /path/to/repo
 ```
 
-After `npm link`, the source CLI can also start dev mode:
-
-```bash
-npm link
-gitboss .
-```
+The `gitboss` terminal command only launches an installed release app. It
+deliberately refuses to fall back to source or development mode. Start
+development mode explicitly with `npm run desktop:dev`.
 
 If the installer says the command directory is not in PATH, add this to your shell profile:
 

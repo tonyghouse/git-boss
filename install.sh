@@ -203,18 +203,17 @@ install_generated_app() {
 }
 
 install_cli_shim() {
-  local bin_dir escaped_root shim_path
+  local bin_dir shim_path
   bin_dir="$HOME/.local/bin"
   shim_path="$bin_dir/gitboss"
-  escaped_root="$(printf "%q" "$ROOT_DIR")"
 
   mkdir -p "$bin_dir"
   cat > "$shim_path" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 
-SOURCE_DIR=$escaped_root
 input="\${1:-.}"
+shim_path="$shim_path"
 
 case "\$input" in
   /*) target="\$input" ;;
@@ -226,6 +225,14 @@ if [[ ! -d "\$target" ]]; then
   exit 1
 fi
 
+launch_detached() {
+  if command -v setsid >/dev/null 2>&1; then
+    setsid -f "\$@" </dev/null >/dev/null 2>&1
+  else
+    nohup "\$@" </dev/null >/dev/null 2>&1 &
+  fi
+}
+
 case "\$(uname -s)" in
   Darwin)
     if [[ -d "/Applications/GitBoss.app" || -d "\$HOME/Applications/GitBoss.app" ]]; then
@@ -234,32 +241,18 @@ case "\$(uname -s)" in
     fi
     ;;
   Linux)
-    if [[ -x "\$HOME/.local/bin/GitBoss.AppImage" ]]; then
-      "\$HOME/.local/bin/GitBoss.AppImage" "\$target" >/dev/null 2>&1 &
-      exit 0
-    fi
+    for installed_app in \
+      "\$HOME/.local/bin/GitBoss.AppImage" \
+      "/usr/bin/gitboss"; do
+      if [[ -x "\$installed_app" && "\$installed_app" != "\$shim_path" ]]; then
+        launch_detached "\$installed_app" "\$target"
+        exit 0
+      fi
+    done
     ;;
 esac
 
-if [[ -f "\$SOURCE_DIR/package.json" ]]; then
-  if command -v curl >/dev/null 2>&1 &&
-    curl -fsS --max-time 1 "http://127.0.0.1:1421/" 2>/dev/null | grep -q "<title>GitBoss</title>"; then
-    dev_binary="\$SOURCE_DIR/src-tauri/target/debug/gitboss"
-
-    if [[ ! -x "\$dev_binary" ]]; then
-      (cd "\$SOURCE_DIR/src-tauri" && cargo build)
-    fi
-
-    "\$dev_binary" "\$target" >/dev/null 2>&1 &
-    exit 0
-  fi
-
-  cd "\$SOURCE_DIR"
-  npm run desktop:dev -- -- -- "\$target"
-  exit \$?
-fi
-
-printf "GitBoss is not installed and the source checkout was not found.\n" >&2
+printf "GitBoss is not installed. Refusing to start a development fallback; reinstall the release app.\n" >&2
 exit 1
 EOF
 

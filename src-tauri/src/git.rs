@@ -628,6 +628,26 @@ pub fn initial_path_hint() -> PathBuf {
     let path_arg = std::env::args_os().skip(1).find(is_project_arg);
     let path = path_arg.map(PathBuf::from).unwrap_or(current_dir.clone());
 
+    resolve_path_hint(path, &current_dir)
+}
+
+pub fn forwarded_path_hint(args: &[String], cwd: &Path) -> Option<PathBuf> {
+    let current_dir = if cwd.as_os_str().is_empty() {
+        std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+    } else {
+        cwd.to_path_buf()
+    };
+    let path = args
+        .iter()
+        .skip(1)
+        .map(OsString::from)
+        .find(is_project_arg)
+        .map(PathBuf::from)?;
+
+    Some(resolve_path_hint(path, &current_dir))
+}
+
+fn resolve_path_hint(path: PathBuf, current_dir: &Path) -> PathBuf {
     if path.is_absolute() {
         path
     } else {
@@ -638,7 +658,7 @@ pub fn initial_path_hint() -> PathBuf {
 fn is_project_arg(arg: &OsString) -> bool {
     let value = arg.to_string_lossy();
 
-    !value.is_empty() && value != "--" && !value.starts_with("-psn_")
+    !value.is_empty() && value != "--" && !value.starts_with("--") && !value.starts_with("-psn_")
 }
 
 fn display_command(repo_path: &Path, args: &[&str]) -> String {
@@ -661,4 +681,31 @@ fn quote_arg(value: &str) -> String {
     }
 
     format!("{value:?}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::forwarded_path_hint;
+    use std::path::{Path, PathBuf};
+
+    #[test]
+    fn resolves_forwarded_relative_repository_from_launch_directory() {
+        let args = vec!["gitboss".to_string(), "projects/example".to_string()];
+
+        assert_eq!(
+            forwarded_path_hint(&args, Path::new("/workspace")),
+            Some(PathBuf::from("/workspace/projects/example"))
+        );
+    }
+
+    #[test]
+    fn ignores_launch_metadata_without_creating_repository_context() {
+        let args = vec![
+            "gitboss".to_string(),
+            "--".to_string(),
+            "-psn_0_12345".to_string(),
+        ];
+
+        assert_eq!(forwarded_path_hint(&args, Path::new("/workspace")), None);
+    }
 }
